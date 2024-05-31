@@ -1,0 +1,58 @@
+# 以前は docker-compose.yaml というファイル名だったけど、
+# いつからか compose.yaml が推奨になったらしい。
+# あと version: "3.9" みたいなのも必要なくなったようだ。
+# https://docs.docker.com/compose/compose-application-model/
+
+services:
+  app:
+    # appサービスを Dockerfile を使ってビルドする
+    build: .
+    # ホストのカレントディレクトリをコンテナの /app ディレクトリにマウント
+    volumes:
+      - .:/app
+    # ホストのポート3000をコンテナのポート3000にマッピング
+    ports:
+      - "3000:3000"
+    # 環境変数を .env ファイルから読み込む
+    env_file:
+      - .env
+    # app サービスが起動する前に db サービスを起動する
+    depends_on:
+      - db
+    # コンテナのプラットフォームを指定
+    platform: linux/amd64
+    # app サービスを app-network ネットワークに接続
+    networks:
+      - app-network
+  db:
+    # db サービスに使用する MySQL 8.0 イメージを指定
+    image: mysql:8.0
+    # ホストのポート3306をコンテナのポート3306にマッピング
+    ports:
+      - "3306:3306"
+    # MySQL の環境変数を設定
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=test_db
+    # データを永続化するためのボリュームマウントを設定
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    # コンテナのプラットフォームを指定
+    platform: linux/amd64
+    # db サービスを app-network ネットワークに接続
+    networks:
+      - app-network
+
+# カスタムネットワーク app-network を定義、driver は bridge を使用
+# app と db に同じネットワークを指定することで、同一ネットワークに接続することができる。
+# ドライバの bridge は同じホスト内のコンテナ同士を接続するために使う。
+# 同じブリッジネットワークに接続されているコンテナ間で、
+# コンテナ名を使ったDNSルックアップが可能になり、通信が容易になる。
+networks:
+  app-network:
+    driver: bridge
+
+# 永続化ボリューム db-data を定義
+volumes:
+  db-data:

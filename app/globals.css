@@ -105,3 +105,26 @@ a {
     color-scheme: dark;
   }
 }
+
+h1 {
+  text-align: center;
+}
+
+.contents {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 64px;
+}
+
+table {
+  border-collapse: collapse;
+  margin-top: 16px;
+
+  th,
+  td {
+    padding: 4px 8px;
+    border: solid 1px #ccc;
+  }
+}
