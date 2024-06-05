@@ -8,6 +8,7 @@ services:
     # appサービスを Dockerfile を使ってビルドする
     build: .
     # ホストのカレントディレクトリをコンテナの /app ディレクトリにマウント
+    # この記述があることで、このプロジェクト全体のファイルがコンテナにも反映されるわけだ
     volumes:
       - .:/app
     # ホストのポート3000をコンテナのポート3000にマッピング
@@ -20,6 +21,8 @@ services:
     depends_on:
       - db
     # コンテナのプラットフォームを指定
+    # Windows+WSL2だったらこれは省略しても良いみたい。
+    # M1/M2などのMacだとarm64を指定すると良い…みたいな話があるようだ。
     platform: linux/amd64
     # app サービスを app-network ネットワークに接続
     networks:
